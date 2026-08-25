@@ -74,7 +74,7 @@ spec, and `claude-code-prompts.md` the chunk-by-chunk plan.
 ## Build status
 
 - [x] **Chunk 1** — scaffold and contract
-- [ ] Chunk 2 — component library
+- [x] **Chunk 2** — component library
 - [ ] Chunk 3 — the renderer
 - [ ] Chunk 4 — Bronze, end to end
 - [ ] Chunk 5 — switcher and trace panel
