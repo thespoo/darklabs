@@ -15,6 +15,19 @@
     "aipStatus": "not_started",
     "returningVisitor": true
   },
+  "signals": {
+    "borrowingCalculatorUses": 3,
+    "movingCostEstimateRun": false,
+    "viewedPortingGuide": true
+  },
+  "demoSignals": [
+    {
+      "key": "movingCostEstimateRun",
+      "label": "Priya ran a moving cost estimate",
+      "value": true,
+      "note": "She has moved from wondering to working it out."
+    }
+  ],
   "slots": {
     "mortgage-summary": {
       "productName": "5 year fixed · Residential",

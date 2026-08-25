@@ -55,6 +55,20 @@ export const DataFileSchema = z.object({
   attributes: z.record(z.unknown()).default({}),
   /** Recent behaviour. Gold reads these. */
   signals: z.record(z.unknown()).default({}),
+  /**
+   * Signals the demo toolbar can flip on stage. Scripted and illustrative —
+   * the spec is explicit that this is a toggle, not behavioural tracking.
+   */
+  demoSignals: z
+    .array(
+      z.object({
+        key: z.string(),
+        label: z.string(),
+        value: z.union([z.string(), z.number(), z.boolean()]),
+        note: z.string().optional(),
+      })
+    )
+    .default([]),
   /** slot id → props to merge over that slot's layout props. */
   slots: z.record(z.record(z.unknown())).default({}),
 });
@@ -83,13 +97,14 @@ const RUNS_SIGNALS: Record<Level, boolean> = {
 export async function resolveScreen({
   personaId,
   level,
+  signalOverrides,
 }: ResolveRequest): Promise<Screen> {
   const persona = assertSafeId("personaId", personaId);
   const data = await loadData(persona);
   const raw = await readConfigJson("personas", `${persona}.json`);
   const base = parseBase(raw, `config/personas/${persona}.json`, level);
 
-  return assemble({ base, persona, level, data });
+  return assemble({ base, persona, level, data, signalOverrides });
 }
 
 /**
@@ -101,13 +116,14 @@ export async function resolveScreen({
 export async function previewScreen(
   config: unknown,
   personaId: string,
-  level: Level
+  level: Level,
+  signalOverrides?: Facts
 ): Promise<Screen> {
   const persona = assertSafeId("personaId", personaId);
   const data = await loadData(persona);
   const base = parseBase(config, "the config in the editor", level);
 
-  return assemble({ base, persona, level, data });
+  return assemble({ base, persona, level, data, signalOverrides });
 }
 
 /* --- the pipeline ------------------------------------------------------- */
@@ -117,11 +133,13 @@ async function assemble({
   persona,
   level,
   data,
+  signalOverrides,
 }: {
   base: Screen;
   persona: string;
   level: Level;
   data: DataFile | null;
+  signalOverrides?: Facts;
 }): Promise<Screen> {
   const trace: TraceEntry[] = [];
 
@@ -138,8 +156,15 @@ async function assemble({
   }
 
   // --- 3. SIGNAL -------------------------------------------------------
+  // The same applyRules call as stage 2, with a different rule file and a
+  // different bag of facts. That is the whole difference between Silver and
+  // Gold; there is no second evaluator.
   if (RUNS_SIGNALS[level]) {
-    // Chunk 8. Same applyRules call, signals.json and data.signals instead.
+    const rules = await loadRules("signals.json");
+    const facts = { ...(data?.signals ?? {}), ...(signalOverrides ?? {}) };
+    const result = applyRules(slots, rules, facts, "signal");
+    slots = result.slots;
+    trace.push(...result.trace);
   }
 
   // --- 4. OVERRIDE -----------------------------------------------------

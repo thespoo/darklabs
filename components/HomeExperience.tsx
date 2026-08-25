@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScreenSchema, type Level, type Screen } from "@/lib/contract";
 import { ScreenRenderer } from "./ScreenRenderer";
-import { DemoBar, type Persona } from "./DemoBar";
+import { DemoBar, signalParam, type DemoSignal, type Persona } from "./DemoBar";
 import { TracePanel } from "./TracePanel";
 
 type ApiError = {
@@ -27,11 +27,14 @@ export function HomeExperience() {
   const personaId = params.get("personaId") ?? "maya";
   const level = params.get("level") ?? "bronze";
   const customerId = params.get("customerId") ?? undefined;
+  // Fired signals live in the URL, so a fired screen is a link — shareable, and
+  // recoverable with the back button if something goes wrong mid-demo.
+  const firedSignals = params.getAll("signal");
 
   // One key per request. Everything below is derived from whether the result
   // we're holding belongs to the request we're currently making, which avoids
   // storing "loading" and "error" as state that has to be kept in step.
-  const requestKey = `${personaId}|${level}|${customerId ?? ""}`;
+  const requestKey = `${personaId}|${level}|${customerId ?? ""}|${[...firedSignals].sort().join(",")}`;
 
   const [result, setResult] = useState<{ key: string; screen: Screen } | null>(
     null
@@ -62,6 +65,7 @@ export function HomeExperience() {
   useEffect(() => {
     const query = new URLSearchParams({ personaId, level });
     if (customerId) query.set("customerId", customerId);
+    for (const signal of firedSignals) query.append("signal", signal);
 
     let cancelled = false;
 
@@ -107,6 +111,8 @@ export function HomeExperience() {
     return () => {
       cancelled = true;
     };
+    // firedSignals is folded into requestKey, which is what drives this effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestKey, personaId, level, customerId]);
 
   const error = failure?.key === requestKey ? failure.error : null;
@@ -120,13 +126,33 @@ export function HomeExperience() {
 
   // Switching writes the query string and lets the effect above do the rest.
   // router.replace is a client navigation — no page reload, no rebuild.
-  function switchTo(next: { personaId?: string; level?: Level }) {
+  function navigate(
+    next: { personaId?: string; level?: Level },
+    signals: string[]
+  ) {
     const query = new URLSearchParams({
       personaId: next.personaId ?? personaId,
       level: next.level ?? level,
     });
     if (customerId) query.set("customerId", customerId);
+    for (const signal of signals) query.append("signal", signal);
     router.replace(`/?${query}`, { scroll: false });
+  }
+
+  function switchTo(next: { personaId?: string; level?: Level }) {
+    // Switching customer clears any fired signals — they belong to the person
+    // they were fired for.
+    navigate(next, next.personaId && next.personaId !== personaId ? [] : firedSignals);
+  }
+
+  function fireSignal(signal: DemoSignal) {
+    const param = signalParam(signal);
+    navigate(
+      {},
+      firedSignals.includes(param)
+        ? firedSignals.filter((value) => value !== param)
+        : [...firedSignals, param]
+    );
   }
 
   return (
@@ -135,7 +161,9 @@ export function HomeExperience() {
         personas={personas}
         personaId={personaId}
         level={level}
+        firedSignals={firedSignals}
         onChange={switchTo}
+        onFireSignal={fireSignal}
       />
 
       {loading && (

@@ -16,6 +16,20 @@
     "documentsOutstanding": true,
     "returningVisitor": true
   },
+  "signals": {
+    "propertiesViewedThisWeek": 0,
+    "mortgageAreaVisits": 6,
+    "aipStarted": true,
+    "seenEducationalContent": true
+  },
+  "demoSignals": [
+    {
+      "key": "propertiesViewedThisWeek",
+      "label": "Daniel viewed three properties this week",
+      "value": 3,
+      "note": "He is close to making an offer."
+    }
+  ],
   "slots": {
     "aip-status": {
       "title": "Your agreement in principle",

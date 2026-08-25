@@ -1,0 +1,133 @@
+[
+  {
+    "id": "repeated-calculator-use",
+    "when": {
+      "attribute": "calculatorUses",
+      "greaterThan": 2
+    },
+    "then": [
+      {
+        "action": "demote",
+        "slotId": "first-time-buyer-intro",
+        "to": "muted"
+      },
+      {
+        "action": "promote",
+        "slotId": "adviser",
+        "to": "standard"
+      }
+    ],
+    "reason": "Maya has worked out what she can afford four times this week. She is further along than her account suggests, so the introduction steps back and talking to someone becomes easier to find."
+  },
+  {
+    "id": "looking-at-applying",
+    "when": {
+      "attribute": "aipPageOpened",
+      "equals": true
+    },
+    "then": [
+      {
+        "action": "promote",
+        "slotId": "next-action",
+        "to": "hero"
+      },
+      {
+        "action": "rewrite",
+        "slotId": "next-action",
+        "props": {
+          "headline": "Ready to see what you could borrow for real?",
+          "body": "An agreement in principle takes about ten minutes and doesn't affect your credit score.",
+          "ctaLabel": "Start an agreement in principle",
+          "emphasis": "high",
+          "note": "No commitment"
+        }
+      },
+      {
+        "action": "demote",
+        "slotId": "affordability",
+        "to": "standard"
+      }
+    ],
+    "reason": "Maya has been reading about agreements in principle without starting one. The screen offers her that step directly, and the calculator that got her here steps back now it has done its job."
+  },
+  {
+    "id": "application-under-way",
+    "when": {
+      "attribute": "aipStarted",
+      "equals": true
+    },
+    "then": [
+      {
+        "action": "promote",
+        "slotId": "next-action",
+        "to": "hero"
+      }
+    ],
+    "reason": "Daniel has an application part-finished, so continuing it is the loudest thing on his screen."
+  },
+  {
+    "id": "close-to-making-an-offer",
+    "when": {
+      "attribute": "propertiesViewedThisWeek",
+      "greaterThan": 2
+    },
+    "then": [
+      {
+        "action": "promote",
+        "slotId": "aip-status",
+        "to": "hero"
+      },
+      {
+        "action": "demote",
+        "slotId": "education",
+        "to": "muted"
+      }
+    ],
+    "reason": "Daniel has viewed three properties this week \u2014 he is close to making an offer. His application moves to the top, and reading he has already seen steps back out of the way."
+  },
+  {
+    "id": "repeated-borrowing-calculations",
+    "when": {
+      "attribute": "borrowingCalculatorUses",
+      "greaterThan": 2
+    },
+    "then": [
+      {
+        "action": "promote",
+        "slotId": "equity",
+        "to": "hero"
+      },
+      {
+        "action": "demote",
+        "slotId": "moving-content",
+        "to": "muted"
+      }
+    ],
+    "reason": "Priya keeps returning to what she could borrow, so the equity that answers it is foregrounded and general reading about moving is turned down."
+  },
+  {
+    "id": "costing-out-a-move",
+    "when": {
+      "attribute": "movingCostEstimateRun",
+      "equals": true
+    },
+    "then": [
+      {
+        "action": "promote",
+        "slotId": "moving-affordability",
+        "to": "hero"
+      },
+      {
+        "action": "promote",
+        "slotId": "adviser",
+        "to": "standard"
+      },
+      {
+        "action": "demote",
+        "slotId": "mortgage-summary",
+        "to": "standard"
+      }
+    ],
+    "reason": "Priya has moved from wondering about a move to costing one out. The moving figures lead, her current mortgage becomes the context rather than the headline, and an adviser is offered because this is the point the decision gets complicated."
+  }
+]

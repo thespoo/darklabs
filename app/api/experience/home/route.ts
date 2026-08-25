@@ -7,6 +7,34 @@
 import { LevelSchema } from "@/lib/contract";
 import { ConfigNotFoundError, ConfigParseError } from "@/lib/config";
 import { resolveScreen, ScreenValidationError } from "@/lib/resolver";
+import type { Facts } from "@/lib/rules";
+
+/**
+ * Signals fired from the demo toolbar arrive as `?signal=key:value`, applied
+ * over whatever the data file says at rest. Nothing is written to disk — the
+ * URL is the whole state, so a fired screen is a link you can share or go back
+ * from mid-demo.
+ */
+function readSignalOverrides(params: URLSearchParams): Facts {
+  const overrides: Facts = {};
+
+  for (const raw of params.getAll("signal")) {
+    const separator = raw.indexOf(":");
+    if (separator === -1) continue;
+
+    const key = raw.slice(0, separator);
+    const value = raw.slice(separator + 1);
+    if (!key) continue;
+
+    if (value === "true") overrides[key] = true;
+    else if (value === "false") overrides[key] = false;
+    else if (value.trim() !== "" && Number.isFinite(Number(value))) {
+      overrides[key] = Number(value);
+    } else overrides[key] = value;
+  }
+
+  return overrides;
+}
 
 /** Config is read from disk per request. Never cache this route. */
 export const dynamic = "force-dynamic";
@@ -33,6 +61,7 @@ export async function GET(request: Request) {
       personaId,
       level: level.data,
       customerId,
+      signalOverrides: readSignalOverrides(params),
     });
     return Response.json(screen, {
       status: 200,

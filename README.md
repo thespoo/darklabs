@@ -80,6 +80,6 @@ spec, and `claude-code-prompts.md` the chunk-by-chunk plan.
 - [x] **Chunk 5** — switcher and trace panel
 - [x] **Chunk 6** — Silver: context rules
 - [x] **Chunk 7** — config studio
-- [ ] Chunk 8 — Gold: signals
+- [x] **Chunk 8** — Gold: signals
 - [ ] Chunk 9 — theme tokens
 - [ ] Chunk 10 — individual override

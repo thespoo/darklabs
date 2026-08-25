@@ -9,7 +9,24 @@
 
 import type { Level } from "@/lib/contract";
 
-export type Persona = { id: string; name: string; summary: string };
+export type DemoSignal = {
+  key: string;
+  label: string;
+  value: string | number | boolean;
+  note?: string;
+};
+
+export type Persona = {
+  id: string;
+  name: string;
+  summary: string;
+  demoSignals: DemoSignal[];
+};
+
+/** The query-string form of a fired signal: "key:value". */
+export function signalParam(signal: DemoSignal): string {
+  return `${signal.key}:${signal.value}`;
+}
 
 const LEVELS: { id: Level; label: string; blurb: string }[] = [
   { id: "bronze", label: "Bronze", blurb: "The base layout for this customer" },
@@ -21,14 +38,19 @@ export function DemoBar({
   personas,
   personaId,
   level,
+  firedSignals,
   onChange,
+  onFireSignal,
 }: {
   personas: Persona[];
   personaId: string;
   level: string;
+  firedSignals: string[];
   onChange: (next: { personaId?: string; level?: Level }) => void;
+  onFireSignal: (signal: DemoSignal) => void;
 }) {
   const current = personas.find((p) => p.id === personaId);
+  const signals = current?.demoSignals ?? [];
 
   return (
     <header className="sticky top-0 z-20 -mx-6 mb-[var(--u-gap)] border-b border-[var(--u-line)] bg-[var(--u-surface)]/90 px-6 py-3 backdrop-blur">
@@ -95,6 +117,42 @@ export function DemoBar({
           </span>{" "}
           — {current.summary}
         </p>
+      )}
+
+      {/*
+        Fire a signal. Scripted and illustrative, per the brief — this flips one
+        value and refetches. There is no tracking and nothing predictive behind
+        it, and it only means anything at Gold.
+      */}
+      {level === "gold" && signals.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-[var(--u-ink-faint)]">
+            Fire a signal
+          </span>
+          {signals.map((signal) => {
+            const fired = firedSignals.includes(signalParam(signal));
+            return (
+              <button
+                key={signal.key}
+                type="button"
+                onClick={() => onFireSignal(signal)}
+                aria-pressed={fired}
+                title={signal.note}
+                className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+                  fired
+                    ? "border-transparent bg-[var(--u-positive)] text-white"
+                    : "border-[var(--u-line-strong)] text-[var(--u-ink-soft)] hover:border-[var(--u-accent)] hover:text-[var(--u-accent)]"
+                }`}
+              >
+                <span
+                  aria-hidden
+                  className={`h-2 w-2 rounded-full ${fired ? "bg-white" : "bg-[var(--u-line-strong)]"}`}
+                />
+                {signal.label}
+              </button>
+            );
+          })}
+        </div>
       )}
     </header>
   );

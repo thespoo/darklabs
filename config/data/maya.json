@@ -14,6 +14,20 @@
     "aipStatus": "not_started",
     "returningVisitor": false
   },
+  "signals": {
+    "calculatorUses": 4,
+    "calculatorUsesThisWeek": 3,
+    "aipPageOpened": false,
+    "depositGoalSet": true
+  },
+  "demoSignals": [
+    {
+      "key": "aipPageOpened",
+      "label": "Maya opened the agreement in principle page",
+      "value": true,
+      "note": "She has started looking at applying, without saying so."
+    }
+  ],
   "slots": {
     "deposit-progress": {
       "label": "Deposit fund",

@@ -19,6 +19,7 @@ export async function GET() {
         name: data?.customer?.firstName ?? id,
         summary: data?.customer?.summary ?? "",
         order: data?.order ?? 99,
+        demoSignals: data?.demoSignals ?? [],
       };
     })
   );
