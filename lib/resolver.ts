@@ -86,10 +86,46 @@ export async function resolveScreen({
 }: ResolveRequest): Promise<Screen> {
   const persona = assertSafeId("personaId", personaId);
   const data = await loadData(persona);
+  const raw = await readConfigJson("personas", `${persona}.json`);
+  const base = parseBase(raw, `config/personas/${persona}.json`, level);
+
+  return assemble({ base, persona, level, data });
+}
+
+/**
+ * The same pipeline, run over a config that is being typed rather than one on
+ * disk. The studio needs this: a right-hand pane that skipped hydration would
+ * be a screen full of fallback cards, and one that skipped the rules would not
+ * show what Silver or Gold does to an edit.
+ */
+export async function previewScreen(
+  config: unknown,
+  personaId: string,
+  level: Level
+): Promise<Screen> {
+  const persona = assertSafeId("personaId", personaId);
+  const data = await loadData(persona);
+  const base = parseBase(config, "the config in the editor", level);
+
+  return assemble({ base, persona, level, data });
+}
+
+/* --- the pipeline ------------------------------------------------------- */
+
+async function assemble({
+  base,
+  persona,
+  level,
+  data,
+}: {
+  base: Screen;
+  persona: string;
+  level: Level;
+  data: DataFile | null;
+}): Promise<Screen> {
   const trace: TraceEntry[] = [];
 
   // --- 1. BASE ---------------------------------------------------------
-  const base = await loadBase(persona, level);
   let slots: Slot[] = base.slots;
   trace.push(...baseTrace(slots));
 
@@ -112,7 +148,7 @@ export async function resolveScreen({
   // --- 5. VALIDATE -----------------------------------------------------
   // Re-validated after the rules have had their way, so a rule that inserts a
   // malformed slot is a 422 rather than a broken card.
-  const result = ScreenSchema.safeParse({ ...base.screen, slots, trace });
+  const result = ScreenSchema.safeParse({ ...base, slots, trace });
   if (!result.success) {
     throw new ScreenValidationError(
       `The resolved screen for ${persona} does not match the contract.`,
@@ -139,28 +175,22 @@ export async function resolveScreen({
 /* --- loading ------------------------------------------------------------ */
 
 /**
- * Read the persona's layout and get typed slots out of it. This is not the
- * VALIDATE stage — it is how a file on disk becomes something the evaluator can
- * work with. Stage 5 validates again once the rules have finished.
+ * Turn a config into typed slots. This is not the VALIDATE stage — it is how
+ * JSON becomes something the evaluator can work with. Stage 5 validates again
+ * once the rules have finished.
  */
-async function loadBase(
-  persona: string,
-  level: Level
-): Promise<{ screen: Screen; slots: Slot[] }> {
-  const raw = (await readConfigJson(
-    "personas",
-    `${persona}.json`
-  )) as Record<string, unknown>;
-
-  const parsed = ScreenSchema.safeParse({ ...raw, level });
+function parseBase(raw: unknown, source: string, level: Level): Screen {
+  const parsed = ScreenSchema.safeParse({
+    ...(raw as Record<string, unknown>),
+    level,
+  });
   if (!parsed.success) {
     throw new ScreenValidationError(
-      `config/personas/${persona}.json does not match the screen contract.`,
+      `${source} does not match the screen contract.`,
       issuesOf(parsed.error)
     );
   }
-
-  return { screen: parsed.data, slots: parsed.data.slots };
+  return parsed.data;
 }
 
 /** Every slot that came with a reason explains itself at stage 1. */
