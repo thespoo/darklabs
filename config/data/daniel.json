@@ -1,0 +1,76 @@
+{
+  "personaId": "daniel",
+  "customer": {
+    "firstName": "Daniel",
+    "lastName": "Whitfield",
+    "summary": "Deposit saved, viewing properties, agreement in principle started. No mortgage yet."
+  },
+  "slots": {
+    "aip-status": {
+      "title": "Your agreement in principle",
+      "status": "in_progress",
+      "completedSteps": 3,
+      "totalSteps": 5,
+      "steps": [
+        "Your details",
+        "Income and employment",
+        "Your outgoings",
+        "Credit check",
+        "Your decision"
+      ],
+      "outstanding": "We still need your last three months of payslips before we can run the credit check.",
+      "ctaLabel": "Continue",
+      "reference": "AIP-88421"
+    },
+    "affordability": {
+      "income": 61000,
+      "deposit": 43500,
+      "maxBorrowing": 247000,
+      "monthlyIllustration": 1264.18,
+      "rate": 4.59,
+      "termYears": 30,
+      "calculatedOn": "12 August"
+    },
+    "document-checklist": {
+      "items": [
+        { "label": "Photo ID", "done": true },
+        { "label": "Proof of address", "done": true },
+        {
+          "label": "Last 3 months' payslips",
+          "done": false,
+          "detail": "PDF or a photo is fine, as long as the figures are legible."
+        },
+        {
+          "label": "Last 3 months' bank statements",
+          "done": false,
+          "detail": "The account your salary is paid into."
+        }
+      ]
+    },
+    "deposit-saved": {
+      "label": "Deposit saved",
+      "current": 43500,
+      "target": 42000,
+      "monthlyContribution": 400
+    },
+    "education": {
+      "items": [
+        {
+          "title": "Making an offer: what happens next",
+          "description": "From accepted offer to exchange, step by step.",
+          "meta": "5 min read"
+        },
+        {
+          "title": "Do you need a survey?",
+          "description": "The three levels, and when each is worth it.",
+          "meta": "4 min read"
+        },
+        {
+          "title": "Fixed or tracker?",
+          "description": "How to think about it without a crystal ball.",
+          "meta": "6 min read"
+        }
+      ]
+    }
+  }
+}

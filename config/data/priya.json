@@ -1,0 +1,59 @@
+{
+  "personaId": "priya",
+  "customer": {
+    "firstName": "Priya",
+    "lastName": "Raghunathan",
+    "summary": "Existing Unicorn mortgage on a home she owns. Considering moving somewhere larger."
+  },
+  "slots": {
+    "mortgage-summary": {
+      "productName": "5 year fixed · Residential",
+      "balance": 198450,
+      "rate": 3.89,
+      "termRemaining": 266,
+      "dealEnds": "2027-04-30",
+      "portable": true,
+      "monthlyPayment": 1142.6,
+      "accountNumber": "•••• 4417"
+    },
+    "equity": {
+      "propertyValue": 412000,
+      "mortgageBalance": 198450,
+      "estimatedEquity": 213550,
+      "additionalBorrowing": 136550,
+      "valuationBasis": "Estimated from sold prices on your street, updated August 2026. A valuation would confirm it.",
+      "ctaLabel": "Explore additional borrowing"
+    },
+    "moving-affordability": {
+      "propertyValue": 412000,
+      "mortgageBalance": 198450,
+      "maxBorrowing": 335000,
+      "rate": 4.59,
+      "termYears": 22
+    },
+    "moving-content": {
+      "items": [
+        {
+          "title": "Porting your mortgage",
+          "description": "Taking your current rate with you to the new place.",
+          "meta": "Guide"
+        },
+        {
+          "title": "Buying before you sell",
+          "description": "What bridging involves, and what it costs.",
+          "meta": "Guide"
+        },
+        {
+          "title": "Early repayment charges",
+          "description": "What leaving your deal early would actually cost you.",
+          "meta": "4 min read"
+        },
+        {
+          "title": "Stamp duty when you're moving",
+          "description": "The bands, and the surcharge that catches people out.",
+          "meta": "5 min read"
+        }
+      ]
+    }
+  }
+}

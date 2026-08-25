@@ -1,0 +1,63 @@
+{
+  "personaId": "maya",
+  "customer": {
+    "firstName": "Maya",
+    "lastName": "Okonjo",
+    "summary": "Renting, saving a deposit, no mortgage. Doesn't yet know what she can afford."
+  },
+  "slots": {
+    "deposit-progress": {
+      "label": "Deposit fund",
+      "current": 18400,
+      "target": 32000,
+      "monthlyContribution": 620,
+      "targetBasis": "Based on a 10% deposit on a £320,000 home in the areas you've been looking at."
+    },
+    "affordability": {
+      "income": 38000,
+      "deposit": 18400
+    },
+    "buying-checklist": {
+      "items": [
+        { "label": "Work out roughly what you can afford", "done": true },
+        { "label": "Open a savings account for your deposit", "done": true },
+        {
+          "label": "Save your deposit",
+          "done": false,
+          "detail": "You're 57% of the way there at your current rate."
+        },
+        {
+          "label": "Get an agreement in principle",
+          "done": false,
+          "detail": "Worth doing once you're close — it shows sellers you're serious."
+        },
+        { "label": "Find a home and make an offer", "done": false },
+        { "label": "Apply for your mortgage", "done": false }
+      ]
+    },
+    "education": {
+      "items": [
+        {
+          "title": "How much deposit do you actually need?",
+          "description": "The 5%, 10% and 20% question, answered plainly.",
+          "meta": "4 min read"
+        },
+        {
+          "title": "The costs nobody warns you about",
+          "description": "Surveys, searches, solicitors and stamp duty.",
+          "meta": "6 min read"
+        },
+        {
+          "title": "What is an agreement in principle?",
+          "description": "And why estate agents keep asking whether you have one.",
+          "meta": "3 min read"
+        },
+        {
+          "title": "Renting while you save",
+          "description": "How lenders look at rent when they work out affordability.",
+          "meta": "5 min read"
+        }
+      ]
+    }
+  }
+}

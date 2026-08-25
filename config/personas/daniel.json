@@ -3,28 +3,31 @@
   "personaId": "daniel",
   "level": "bronze",
   "version": "1.0.0",
-  "theme": { "accent": "navy", "density": "comfortable", "scale": "md" },
+  "theme": { "accent": "navy", "density": "compact", "scale": "md" },
   "slots": [
     {
       "id": "aip-status",
       "component": "StatusCard",
       "prominence": "standard",
       "span": "full",
-      "props": { "status": "in_progress", "completedSteps": 3, "totalSteps": 5 }
+      "props": {},
+      "reason": "Daniel has an agreement in principle under way, so the screen opens where he left off rather than treating him as new."
     },
     {
       "id": "affordability",
       "component": "AffordabilityCalculator",
       "prominence": "standard",
       "span": "full",
-      "props": { "mode": "confirm" }
+      "props": { "mode": "confirm" },
+      "reason": "Daniel has already given us his figures, so the calculator confirms what he can borrow instead of asking him again."
     },
     {
       "id": "document-checklist",
       "component": "Checklist",
       "prominence": "standard",
       "span": "half",
-      "props": { "variant": "documents" }
+      "props": { "variant": "documents" },
+      "reason": "The documents are what stand between Daniel and a decision, so they are on the screen rather than in an email."
     },
     {
       "id": "next-action",
@@ -35,8 +38,26 @@
         "headline": "Continue your agreement in principle",
         "body": "You're three steps from a decision.",
         "ctaLabel": "Continue",
-        "emphasis": "high"
-      }
+        "emphasis": "high",
+        "note": "About 10 minutes"
+      },
+      "reason": "Daniel is close to making an offer, so the one action that helps him is stated plainly."
+    },
+    {
+      "id": "deposit-saved",
+      "component": "SavingsProgressCard",
+      "prominence": "standard",
+      "span": "half",
+      "props": {},
+      "reason": "Daniel's deposit is already saved. It's here as reassurance, not as a task."
+    },
+    {
+      "id": "education",
+      "component": "ContentCard",
+      "prominence": "standard",
+      "span": "half",
+      "props": { "headline": "Before you make an offer", "layout": "list" },
+      "reason": "Practical reading for someone about to offer on a property, rather than an introduction to mortgages."
     },
     {
       "id": "adviser",
@@ -47,7 +68,8 @@
         "headline": "Talk it through",
         "availability": "Today until 8pm",
         "ctaLabel": "Book a call"
-      }
+      },
+      "reason": "There if Daniel needs it. Nothing about his situation is complicated enough to push it."
     }
   ],
   "trace": []

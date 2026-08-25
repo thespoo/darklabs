@@ -48,6 +48,12 @@ export const SlotSchema = z.object({
   span: z.enum(["full", "half"]).default("full"),
   /** Validated per-component at render time against that component's own props schema. */
   props: z.record(z.unknown()),
+  /**
+   * Why this slot is in the base layout, in plain English. Copied into the
+   * trace at stage 1 so a Bronze screen can explain itself too, rather than
+   * the trace only filling up once rules start firing.
+   */
+  reason: z.string().optional(),
 });
 export type Slot = z.infer<typeof SlotSchema>;
 

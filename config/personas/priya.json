@@ -1,0 +1,81 @@
+{
+  "screen": "home",
+  "personaId": "priya",
+  "level": "bronze",
+  "version": "1.0.0",
+  "theme": { "accent": "plum", "density": "comfortable", "scale": "md" },
+  "slots": [
+    {
+      "id": "first-time-buyer-intro",
+      "component": "LifeStageIntro",
+      "prominence": "standard",
+      "span": "full",
+      "props": {
+        "headline": "Thinking about buying a home?",
+        "body": "Whether it's your first home or your next one, we can help you work out what you could afford.",
+        "illustration": "searching"
+      },
+      "reason": "The standard opening we show everyone. Priya already has a mortgage with us, so at Bronze this is still generic."
+    },
+    {
+      "id": "mortgage-summary",
+      "component": "MortgageSummary",
+      "prominence": "standard",
+      "span": "full",
+      "props": {},
+      "reason": "Priya holds a mortgage with Unicorn, so her screen can show her actual position. Maya and Daniel structurally cannot have this component."
+    },
+    {
+      "id": "equity",
+      "component": "EquityCard",
+      "prominence": "standard",
+      "span": "half",
+      "props": {},
+      "reason": "The equity in Priya's home is what makes a move possible, so it sits alongside the mortgage it came from."
+    },
+    {
+      "id": "moving-affordability",
+      "component": "AffordabilityCalculator",
+      "prominence": "standard",
+      "span": "half",
+      "props": { "mode": "moving" },
+      "reason": "The same calculator as everyone else, in its moving mode — it starts from Priya's equity rather than her income."
+    },
+    {
+      "id": "next-action",
+      "component": "NextActionCard",
+      "prominence": "standard",
+      "span": "half",
+      "props": {
+        "headline": "See what moving would cost",
+        "body": "Get an estimate that includes your current mortgage, stamp duty and the fees people forget.",
+        "ctaLabel": "Estimate the costs",
+        "emphasis": "normal"
+      },
+      "reason": "Priya's decision is whether moving is realistic, so the action offered is a costing rather than an application."
+    },
+    {
+      "id": "moving-content",
+      "component": "ContentCard",
+      "prominence": "standard",
+      "span": "half",
+      "props": { "headline": "Moving with a mortgage", "layout": "cards" },
+      "reason": "Content aimed at someone who already owns, not at someone buying for the first time."
+    },
+    {
+      "id": "adviser",
+      "component": "AdviserCard",
+      "prominence": "muted",
+      "span": "full",
+      "props": {
+        "headline": "Talk it through with an adviser",
+        "availability": "Today until 8pm",
+        "ctaLabel": "Book a call",
+        "body": "Moving with an existing mortgage has more moving parts than a first purchase.",
+        "adviserName": "Ruth Kelleher"
+      },
+      "reason": "Offered, but not yet prominent — at Bronze the screen doesn't know how complicated Priya's move actually is."
+    }
+  ],
+  "trace": []
+}

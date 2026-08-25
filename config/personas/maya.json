@@ -1,0 +1,81 @@
+{
+  "screen": "home",
+  "personaId": "maya",
+  "level": "bronze",
+  "version": "1.0.0",
+  "theme": { "accent": "teal", "density": "spacious", "scale": "md" },
+  "slots": [
+    {
+      "id": "first-time-buyer-intro",
+      "component": "LifeStageIntro",
+      "prominence": "hero",
+      "span": "full",
+      "props": {
+        "headline": "You're building towards your first home",
+        "body": "There's nothing to apply for yet. Here's roughly where you stand, and the one thing worth doing next.",
+        "illustration": "saving"
+      },
+      "reason": "Maya isn't ready to apply, so her screen opens by telling her where she is rather than asking her for something."
+    },
+    {
+      "id": "deposit-progress",
+      "component": "SavingsProgressCard",
+      "prominence": "hero",
+      "span": "full",
+      "props": {},
+      "reason": "Saving a deposit is the thing Maya is actually doing, so her progress leads the screen."
+    },
+    {
+      "id": "affordability",
+      "component": "AffordabilityCalculator",
+      "prominence": "standard",
+      "span": "full",
+      "props": { "mode": "explore" },
+      "reason": "Maya has never used the calculator, so it opens in its exploring mode — sliders and a range, not a figure that implies a decision."
+    },
+    {
+      "id": "buying-checklist",
+      "component": "Checklist",
+      "prominence": "standard",
+      "span": "half",
+      "props": { "variant": "buying" },
+      "reason": "The steps of buying a home, so the process stops feeling like one enormous decision."
+    },
+    {
+      "id": "next-action",
+      "component": "NextActionCard",
+      "prominence": "standard",
+      "span": "half",
+      "props": {
+        "headline": "Give your deposit a boost",
+        "body": "A Lifetime ISA adds 25% from the government to what you save, up to £1,000 a year.",
+        "ctaLabel": "See how it works",
+        "emphasis": "normal",
+        "note": "For first-time buyers"
+      },
+      "reason": "The most useful next step for Maya moves her deposit along. It isn't an application."
+    },
+    {
+      "id": "education",
+      "component": "ContentCard",
+      "prominence": "standard",
+      "span": "full",
+      "props": { "headline": "Worth knowing before you start", "layout": "cards" },
+      "reason": "Maya told us she doesn't know what to expect, so guidance sits high on her screen rather than at the bottom."
+    },
+    {
+      "id": "adviser",
+      "component": "AdviserCard",
+      "prominence": "muted",
+      "span": "full",
+      "props": {
+        "headline": "Questions? Just ask",
+        "availability": "Weekdays until 8pm",
+        "ctaLabel": "Book a call",
+        "body": "You don't have to be ready to apply to talk to someone."
+      },
+      "reason": "Available, but quiet — Maya hasn't asked for help and shouldn't feel pushed towards a conversation."
+    }
+  ],
+  "trace": []
+}
