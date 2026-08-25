@@ -71,6 +71,21 @@ config/             personas, rules, overrides and mock customer data
 `CLAUDE.md` holds the project rules. `sdui-mortgage-poc-spec.md` is the full build
 spec, and `claude-code-prompts.md` the chunk-by-chunk plan.
 
+## Picking this up
+
+If you are starting work on this repo, read `docs/handoff/` first — it covers
+the current state, the architecture and invariants, what is left to build, and
+the traps already hit.
+
+| | |
+|---|---|
+| `docs/handoff/README.md` | Start here — status, how to run, the playback script |
+| `docs/handoff/ARCHITECTURE.md` | The contract, the pipeline, the file map, the invariants |
+| `docs/handoff/REMAINING-WORK.md` | Chunks 9 and 10, specified to acceptance-criterion level |
+| `docs/handoff/GOTCHAS.md` | Toolchain traps and decisions that are already settled |
+
+`CLAUDE.md` remains the authority on project rules.
+
 ## Build status
 
 - [x] **Chunk 1** — scaffold and contract
