@@ -1,0 +1,54 @@
+{
+  "screen": "home",
+  "personaId": "daniel",
+  "level": "bronze",
+  "version": "1.0.0",
+  "theme": { "accent": "navy", "density": "comfortable", "scale": "md" },
+  "slots": [
+    {
+      "id": "aip-status",
+      "component": "StatusCard",
+      "prominence": "standard",
+      "span": "full",
+      "props": { "status": "in_progress", "completedSteps": 3, "totalSteps": 5 }
+    },
+    {
+      "id": "affordability",
+      "component": "AffordabilityCalculator",
+      "prominence": "standard",
+      "span": "full",
+      "props": { "mode": "confirm" }
+    },
+    {
+      "id": "document-checklist",
+      "component": "Checklist",
+      "prominence": "standard",
+      "span": "half",
+      "props": { "variant": "documents" }
+    },
+    {
+      "id": "next-action",
+      "component": "NextActionCard",
+      "prominence": "standard",
+      "span": "half",
+      "props": {
+        "headline": "Continue your agreement in principle",
+        "body": "You're three steps from a decision.",
+        "ctaLabel": "Continue",
+        "emphasis": "high"
+      }
+    },
+    {
+      "id": "adviser",
+      "component": "AdviserCard",
+      "prominence": "muted",
+      "span": "full",
+      "props": {
+        "headline": "Talk it through",
+        "availability": "Today until 8pm",
+        "ctaLabel": "Book a call"
+      }
+    }
+  ],
+  "trace": []
+}
