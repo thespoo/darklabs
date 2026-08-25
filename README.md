@@ -78,7 +78,7 @@ spec, and `claude-code-prompts.md` the chunk-by-chunk plan.
 - [x] **Chunk 3** — the renderer
 - [x] **Chunk 4** — Bronze, end to end
 - [x] **Chunk 5** — switcher and trace panel
-- [ ] Chunk 6 — Silver: context rules
+- [x] **Chunk 6** — Silver: context rules
 - [ ] Chunk 7 — config studio
 - [ ] Chunk 8 — Gold: signals
 - [ ] Chunk 9 — theme tokens

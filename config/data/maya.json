@@ -6,6 +6,14 @@
     "lastName": "Okonjo",
     "summary": "Renting, saving a deposit, no mortgage. Doesn't yet know what she can afford."
   },
+  "attributes": {
+    "hasMortgage": false,
+    "tenure": "renting",
+    "regularSaver": true,
+    "usedAffordabilityCalculator": false,
+    "aipStatus": "not_started",
+    "returningVisitor": false
+  },
   "slots": {
     "deposit-progress": {
       "label": "Deposit fund",

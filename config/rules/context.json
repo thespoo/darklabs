@@ -1,0 +1,69 @@
+[
+  {
+    "id": "existing-mortgage-holder",
+    "when": { "attribute": "hasMortgage", "equals": true },
+    "then": [
+      { "action": "promote", "slotId": "mortgage-summary", "to": "hero" },
+      { "action": "remove", "slotId": "first-time-buyer-intro" }
+    ],
+    "reason": "Priya already holds a Unicorn mortgage, so her existing position leads instead of an introduction written for someone buying their first home."
+  },
+  {
+    "id": "recent-borrowing-calculation",
+    "when": { "attribute": "usedBorrowingCalculator", "equals": true },
+    "then": [
+      { "action": "move", "slotId": "moving-affordability", "toIndex": 1 }
+    ],
+    "reason": "Priya has been working out what she could borrow, so the moving-home figures sit directly under the mortgage they are calculated from."
+  },
+  {
+    "id": "saving-towards-a-deposit",
+    "when": { "attribute": "regularSaver", "equals": true },
+    "then": [
+      { "action": "move", "slotId": "deposit-progress", "toIndex": 0 },
+      { "action": "demote", "slotId": "first-time-buyer-intro", "to": "standard" }
+    ],
+    "reason": "Maya is putting money aside every month, so the screen opens with the progress she is making and the introduction steps back behind it."
+  },
+  {
+    "id": "has-not-used-the-calculator",
+    "when": { "attribute": "usedAffordabilityCalculator", "equals": false },
+    "then": [
+      { "action": "promote", "slotId": "affordability", "to": "hero" }
+    ],
+    "reason": "Maya has never worked out what she could afford, so the calculator is given room rather than sitting halfway down the page."
+  },
+  {
+    "id": "documents-outstanding",
+    "when": { "attribute": "documentsOutstanding", "equals": true },
+    "then": [
+      { "action": "move", "slotId": "document-checklist", "toIndex": 1 }
+    ],
+    "reason": "The documents we are still waiting for are the only thing standing between Daniel and a decision, so they move up to where he will act on them."
+  },
+  {
+    "id": "deposit-target-already-met",
+    "when": { "attribute": "depositTargetMet", "equals": true },
+    "then": [
+      { "action": "demote", "slotId": "deposit-saved", "to": "muted" }
+    ],
+    "reason": "Daniel's deposit is already saved, so it becomes reassurance rather than another task competing for his attention."
+  },
+  {
+    "id": "returning-visitor",
+    "when": { "attribute": "returningVisitor", "equals": true },
+    "then": [
+      {
+        "action": "rewrite",
+        "slotId": "education",
+        "props": { "headline": "More reading, whenever you want it" }
+      },
+      {
+        "action": "rewrite",
+        "slotId": "moving-content",
+        "props": { "headline": "More on moving, whenever you want it" }
+      }
+    ],
+    "reason": "This customer has been back to us several times, so the reading is offered as something to come back to rather than introduced again as though they were new."
+  }
+]

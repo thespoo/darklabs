@@ -6,6 +6,16 @@
     "lastName": "Whitfield",
     "summary": "Deposit saved, viewing properties, agreement in principle started. No mortgage yet."
   },
+  "attributes": {
+    "hasMortgage": false,
+    "tenure": "renting",
+    "regularSaver": false,
+    "depositTargetMet": true,
+    "usedAffordabilityCalculator": true,
+    "aipStatus": "in_progress",
+    "documentsOutstanding": true,
+    "returningVisitor": true
+  },
   "slots": {
     "aip-status": {
       "title": "Your agreement in principle",

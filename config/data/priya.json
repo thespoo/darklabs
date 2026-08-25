@@ -6,6 +6,15 @@
     "lastName": "Raghunathan",
     "summary": "Existing Unicorn mortgage on a home she owns. Considering moving somewhere larger."
   },
+  "attributes": {
+    "hasMortgage": true,
+    "tenure": "owner",
+    "regularSaver": false,
+    "usedAffordabilityCalculator": false,
+    "usedBorrowingCalculator": true,
+    "aipStatus": "not_started",
+    "returningVisitor": true
+  },
   "slots": {
     "mortgage-summary": {
       "productName": "5 year fixed · Residential",

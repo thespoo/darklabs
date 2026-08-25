@@ -2,18 +2,28 @@
 // The resolver pipeline. One code path; `level` decides where it stops.
 //
 //   1. BASE      /config/personas/{persona}.json      → BRONZE stops here
-//   2. CONTEXT   /config/rules/context.json           → SILVER stops here   (chunk 6)
+//   2. CONTEXT   /config/rules/context.json           → SILVER stops here
 //   3. SIGNAL    /config/rules/signals.json           → GOLD                (chunk 8)
 //   4. OVERRIDE  /config/overrides/{customerId}.json                        (chunk 10)
 //   5. VALIDATE  ScreenSchema.parse()
 //   6. HYDRATE   /config/data/{persona}.json into slot props
 //
-// Stages 1-4 append to `trace`. Hydration does not — it changes what the
-// numbers say, not what the screen decided, and TraceEntry has no stage for it.
+// Stages 2-4 are the same function called with different rule files and
+// different facts. There is no branch per persona anywhere below, and no
+// branch per level beyond the two comparisons that decide where to stop.
 
 import { z } from "zod";
-import { ScreenSchema, type Level, type Screen, type TraceEntry } from "./contract";
+import {
+  RuleSetSchema,
+  ScreenSchema,
+  type Level,
+  type RuleSet,
+  type Screen,
+  type Slot,
+  type TraceEntry,
+} from "./contract";
 import { assertSafeId, readConfigJson, readOptionalConfigJson } from "./config";
+import { applyRules, type Facts } from "./rules";
 
 /** The resolved tree does not satisfy ScreenSchema. Surfaced as a 422. */
 export class ScreenValidationError extends Error {
@@ -26,8 +36,8 @@ export class ScreenValidationError extends Error {
 }
 
 /**
- * A persona's customer data. Layout lives in /config/personas; the numbers live
- * here, keyed by the slot they belong to.
+ * A persona's customer data. Layout lives in /config/personas; the numbers,
+ * the durable facts and the behavioural signals live here.
  */
 export const DataFileSchema = z.object({
   personaId: z.string(),
@@ -41,6 +51,10 @@ export const DataFileSchema = z.object({
       summary: z.string().optional(),
     })
     .optional(),
+  /** Durable facts about the relationship. Silver reads these. */
+  attributes: z.record(z.unknown()).default({}),
+  /** Recent behaviour. Gold reads these. */
+  signals: z.record(z.unknown()).default({}),
   /** slot id → props to merge over that slot's layout props. */
   slots: z.record(z.record(z.unknown())).default({}),
 });
@@ -50,6 +64,20 @@ export type ResolveRequest = {
   personaId: string;
   level: Level;
   customerId?: string;
+  /** Signal overrides from the demo toolbar, applied over the data file. */
+  signalOverrides?: Facts;
+};
+
+/** Which stages run at which level. One pipeline, three stopping points. */
+const RUNS_CONTEXT: Record<Level, boolean> = {
+  bronze: false,
+  silver: true,
+  gold: true,
+};
+const RUNS_SIGNALS: Record<Level, boolean> = {
+  bronze: false,
+  silver: false,
+  gold: true,
 };
 
 export async function resolveScreen({
@@ -57,49 +85,44 @@ export async function resolveScreen({
   level,
 }: ResolveRequest): Promise<Screen> {
   const persona = assertSafeId("personaId", personaId);
+  const data = await loadData(persona);
   const trace: TraceEntry[] = [];
 
   // --- 1. BASE ---------------------------------------------------------
-  const base = (await readConfigJson(
-    "personas",
-    `${persona}.json`
-  )) as Record<string, unknown>;
+  const base = await loadBase(persona, level);
+  let slots: Slot[] = base.slots;
+  trace.push(...baseTrace(slots));
 
-  const draft: Record<string, unknown> = { ...base, level };
-
-  // Read loosely: this runs before validation, so nothing here may assume the
-  // file is well formed.
-  for (const slot of Array.isArray(draft.slots) ? draft.slots : []) {
-    const reason = (slot as Record<string, unknown>)?.reason;
-    if (typeof reason === "string" && reason.length > 0) {
-      trace.push({
-        stage: "base",
-        slotId: String((slot as Record<string, unknown>).id ?? "unknown"),
-        action: "added",
-        reason,
-      });
-    }
+  // --- 2. CONTEXT ------------------------------------------------------
+  if (RUNS_CONTEXT[level]) {
+    const rules = await loadRules("context.json");
+    const result = applyRules(slots, rules, data?.attributes ?? {}, "context");
+    slots = result.slots;
+    trace.push(...result.trace);
   }
 
-  // --- 2. CONTEXT / 3. SIGNAL / 4. OVERRIDE ----------------------------
-  // Added in chunks 6, 8 and 10. They mutate `draft.slots` and push to `trace`.
+  // --- 3. SIGNAL -------------------------------------------------------
+  if (RUNS_SIGNALS[level]) {
+    // Chunk 8. Same applyRules call, signals.json and data.signals instead.
+  }
+
+  // --- 4. OVERRIDE -----------------------------------------------------
+  // Chunk 10.
 
   // --- 5. VALIDATE -----------------------------------------------------
-  const result = ScreenSchema.safeParse({ ...draft, trace });
+  // Re-validated after the rules have had their way, so a rule that inserts a
+  // malformed slot is a 422 rather than a broken card.
+  const result = ScreenSchema.safeParse({ ...base.screen, slots, trace });
   if (!result.success) {
     throw new ScreenValidationError(
-      `config/personas/${persona}.json does not match the screen contract.`,
-      result.error.issues.map((issue) => ({
-        path: issue.path.join(".") || "(root)",
-        message: issue.message,
-      }))
+      `The resolved screen for ${persona} does not match the contract.`,
+      issuesOf(result.error)
     );
   }
 
   const screen = result.data;
 
   // --- 6. HYDRATE ------------------------------------------------------
-  const data = await loadData(persona);
   if (data) {
     screen.slots = screen.slots.map((slot) => {
       const values = data.slots[slot.id];
@@ -113,6 +136,59 @@ export async function resolveScreen({
   return screen;
 }
 
+/* --- loading ------------------------------------------------------------ */
+
+/**
+ * Read the persona's layout and get typed slots out of it. This is not the
+ * VALIDATE stage — it is how a file on disk becomes something the evaluator can
+ * work with. Stage 5 validates again once the rules have finished.
+ */
+async function loadBase(
+  persona: string,
+  level: Level
+): Promise<{ screen: Screen; slots: Slot[] }> {
+  const raw = (await readConfigJson(
+    "personas",
+    `${persona}.json`
+  )) as Record<string, unknown>;
+
+  const parsed = ScreenSchema.safeParse({ ...raw, level });
+  if (!parsed.success) {
+    throw new ScreenValidationError(
+      `config/personas/${persona}.json does not match the screen contract.`,
+      issuesOf(parsed.error)
+    );
+  }
+
+  return { screen: parsed.data, slots: parsed.data.slots };
+}
+
+/** Every slot that came with a reason explains itself at stage 1. */
+function baseTrace(slots: Slot[]): TraceEntry[] {
+  return slots
+    .filter((slot) => slot.reason)
+    .map((slot) => ({
+      stage: "base" as const,
+      slotId: slot.id,
+      action: "added" as const,
+      reason: slot.reason as string,
+    }));
+}
+
+async function loadRules(file: string): Promise<RuleSet> {
+  const raw = await readOptionalConfigJson("rules", file);
+  if (raw === null) return [];
+
+  const parsed = RuleSetSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new ScreenValidationError(
+      `config/rules/${file} is not a valid rule set.`,
+      issuesOf(parsed.error)
+    );
+  }
+  return parsed.data;
+}
+
 export async function loadData(persona: string): Promise<DataFile | null> {
   const raw = await readOptionalConfigJson("data", `${persona}.json`);
   if (raw === null) return null;
@@ -121,11 +197,15 @@ export async function loadData(persona: string): Promise<DataFile | null> {
   if (!parsed.success) {
     throw new ScreenValidationError(
       `config/data/${persona}.json is not a valid data file.`,
-      parsed.error.issues.map((issue) => ({
-        path: issue.path.join(".") || "(root)",
-        message: issue.message,
-      }))
+      issuesOf(parsed.error)
     );
   }
   return parsed.data;
+}
+
+function issuesOf(error: z.ZodError): { path: string; message: string }[] {
+  return error.issues.map((issue) => ({
+    path: issue.path.join(".") || "(root)",
+    message: issue.message,
+  }));
 }
