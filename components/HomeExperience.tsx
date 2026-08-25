@@ -9,9 +9,11 @@
 // idea what a persona *is*, and it never looks at one to decide what to draw.
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { ScreenSchema, type Screen } from "@/lib/contract";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ScreenSchema, type Level, type Screen } from "@/lib/contract";
 import { ScreenRenderer } from "./ScreenRenderer";
+import { DemoBar, type Persona } from "./DemoBar";
+import { TracePanel } from "./TracePanel";
 
 type ApiError = {
   error: string;
@@ -20,6 +22,7 @@ type ApiError = {
 };
 
 export function HomeExperience() {
+  const router = useRouter();
   const params = useSearchParams();
   const personaId = params.get("personaId") ?? "maya";
   const level = params.get("level") ?? "bronze";
@@ -36,6 +39,25 @@ export function HomeExperience() {
   const [failure, setFailure] = useState<{ key: string; error: ApiError } | null>(
     null
   );
+
+  // The switcher's contents. Fetched once; it does not change while the demo
+  // is running.
+  const [personas, setPersonas] = useState<Persona[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/personas", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((body: { personas: Persona[] }) => {
+        if (!cancelled) setPersonas(body.personas);
+      })
+      .catch(() => {
+        // A switcher that fails to load is survivable; the query string still
+        // works. Nothing here should be able to take the page down.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const query = new URLSearchParams({ personaId, level });
@@ -96,14 +118,43 @@ export function HomeExperience() {
   // stale one.
   const showing = result?.screen ?? null;
 
+  // Switching writes the query string and lets the effect above do the rest.
+  // router.replace is a client navigation — no page reload, no rebuild.
+  function switchTo(next: { personaId?: string; level?: Level }) {
+    const query = new URLSearchParams({
+      personaId: next.personaId ?? personaId,
+      level: next.level ?? level,
+    });
+    if (customerId) query.set("customerId", customerId);
+    router.replace(`/?${query}`, { scroll: false });
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
-      <AppBar personaId={personaId} level={level} loading={loading} />
+      <DemoBar
+        personas={personas}
+        personaId={personaId}
+        level={level}
+        onChange={switchTo}
+      />
+
+      {loading && (
+        <p className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.1em] text-[var(--u-ink-faint)]">
+          <span
+            aria-hidden
+            className="h-2 w-2 animate-pulse rounded-full bg-[var(--u-accent)]"
+          />
+          Asking the server for {personaId} at {level}
+        </p>
+      )}
 
       {error && <ErrorBanner error={error} stale={showing !== null} />}
 
       {showing ? (
-        <ScreenRenderer screen={showing} />
+        <>
+          <ScreenRenderer screen={showing} />
+          <TracePanel trace={showing.trace} level={showing.level} />
+        </>
       ) : loading ? (
         <Skeleton />
       ) : null}
@@ -112,35 +163,6 @@ export function HomeExperience() {
 }
 
 /* --- chrome ------------------------------------------------------------- */
-
-function AppBar({
-  personaId,
-  level,
-  loading,
-}: {
-  personaId: string;
-  level: string;
-  loading: boolean;
-}) {
-  return (
-    <header className="mb-[var(--u-gap)] flex flex-wrap items-center justify-between gap-3 border-b border-[var(--u-line)] pb-4">
-      <p className="text-[length:var(--u-text-lg)] font-semibold tracking-tight">
-        Unicorn
-      </p>
-      <p className="flex items-center gap-2 font-mono text-[length:var(--u-text-xs)] uppercase tracking-[0.1em] text-[var(--u-ink-faint)]">
-        <span>{personaId}</span>
-        <span aria-hidden>·</span>
-        <span>{level}</span>
-        {loading && (
-          <span
-            aria-label="Loading"
-            className="h-2 w-2 animate-pulse rounded-full bg-[var(--u-accent)]"
-          />
-        )}
-      </p>
-    </header>
-  );
-}
 
 function ErrorBanner({ error, stale }: { error: ApiError; stale: boolean }) {
   return (

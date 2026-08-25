@@ -59,3 +59,12 @@ export async function readOptionalConfigJson(
     throw error;
   }
 }
+
+/** The persona ids that have a layout file on disk. Sorted for a stable switcher. */
+export async function listPersonaIds(): Promise<string[]> {
+  const entries = await fs.readdir(configPath("personas"));
+  return entries
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => name.replace(/\.json$/, ""))
+    .sort();
+}

@@ -31,6 +31,8 @@ export class ScreenValidationError extends Error {
  */
 export const DataFileSchema = z.object({
   personaId: z.string(),
+  /** Where this persona sits in the playback. Journey order, not alphabetical. */
+  order: z.number().default(99),
   customer: z
     .object({
       firstName: z.string(),

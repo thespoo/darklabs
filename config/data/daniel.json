@@ -1,5 +1,6 @@
 {
   "personaId": "daniel",
+  "order": 2,
   "customer": {
     "firstName": "Daniel",
     "lastName": "Whitfield",
