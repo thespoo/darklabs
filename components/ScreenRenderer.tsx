@@ -11,6 +11,7 @@
 import type { Screen, Slot } from "@/lib/contract";
 import { lookup } from "./registry";
 import { FallbackCard, SlotBoundary } from "./SlotBoundary";
+import { ThemeScope } from "./ThemeScope";
 
 const IS_DEV = process.env.NODE_ENV !== "production";
 
@@ -21,14 +22,16 @@ const spanClass = {
 
 export function ScreenRenderer({ screen }: { screen: Screen }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-[var(--u-gap)] md:grid-cols-2">
-      {/* Array order is render order. Never sorted. */}
-      {screen.slots.map((slot) => (
-        <div key={slot.id} className={spanClass[slot.span]}>
-          <SlotRenderer slot={slot} />
-        </div>
-      ))}
-    </div>
+    <ThemeScope theme={screen.theme}>
+      <div className="grid grid-cols-1 items-start gap-[var(--u-gap)] md:grid-cols-2">
+        {/* Array order is render order. Never sorted. */}
+        {screen.slots.map((slot) => (
+          <div key={slot.id} className={spanClass[slot.span]}>
+            <SlotRenderer slot={slot} />
+          </div>
+        ))}
+      </div>
+    </ThemeScope>
   );
 }
 

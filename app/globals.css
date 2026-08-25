@@ -67,3 +67,410 @@ body {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
+/* ==================================================================== */
+/* Aurora — Dark Glass & Gold                                           */
+/*                                                                      */
+/* Applies the Aurora design system to the Unicorn POC by re-valuing    */
+/* the existing --u-* tokens. Every token NAME is unchanged, so no      */
+/* component, no registry entry and no config file needs editing. The   */
+/* resolver never knows this happened.                                  */
+/*                                                                      */
+/* APPEND this to the end of app/globals.css. Do not replace the file:  */
+/* the header, the @theme inline font mapping, the body rule and the    */
+/* .u-figure utility all still apply, and the :root block below simply  */
+/* wins on source order.                                                */
+/*                                                                      */
+/* Deliberately left alone: the type ramp rem values (changing them     */
+/* would reflow every layout for no gain in look) and --font-sans       */
+/* (likely wired to next/font upstream).                                */
+/* ==================================================================== */
+
+/* -- Token values ----------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+
+  /* Ground. --u-surface is deliberately TRANSLUCENT: this is what makes
+     the glass material work. Anything painted with bg-[var(--u-surface)]
+     now lets the ambient backdrop through and gets blurred below. */
+  --u-page: oklch(0.185 0.03 268.4);
+  --u-surface: oklch(1 0 0 / 6%);
+  --u-surface-sunken: oklch(0 0 0 / 18%);
+
+  /* Ink */
+  --u-ink: oklch(0.95 0.012 95);
+  --u-ink-soft: oklch(0.72 0.025 262);
+  --u-ink-faint: oklch(0.672 0.022 262);
+
+  /* Hairlines */
+  --u-line: oklch(1 0 0 / 13%);
+  --u-line-strong: oklch(1 0 0 / 22%);
+
+  /* Status. The -soft pair are low-alpha tints of their own hue rather
+     than flat pastels, so they sit correctly on a dark ground. */
+  --u-positive: oklch(0.83 0.13 165);
+  --u-positive-soft: oklch(0.83 0.13 165 / 16%);
+  --u-caution: oklch(0.83 0.13 85);
+  --u-caution-soft: oklch(0.83 0.13 85 / 16%);
+
+  /* New tokens. Nothing upstream declares an on-colour for the status
+     hues, which is what forces the literal text-white the repairs
+     section below has to undo. */
+  --u-positive-on: oklch(0.2 0.04 175);
+  --u-caution-on: oklch(0.24 0.05 80);
+
+  /* Accent — gold by default, swapped by [data-accent] below.
+
+     Two role flips worth noting against the light theme this replaces:
+     --u-accent-on is now DARK, because gold is a light colour and white
+     text on it would fail contrast badly. And --u-accent-deep is now
+     BRIGHTER than --u-accent rather than darker, since on a dark ground
+     emphasis reads as more luminous, not less. Both usages still work:
+     deep-on-soft and on-over-accent are checked below. */
+  --u-accent: oklch(0.743 0.117 89.5);
+  --u-accent-deep: oklch(0.883 0.098 91.7);
+  --u-accent-soft: oklch(0.78 0.13 89.5 / 22%);
+  --u-accent-line: oklch(0.743 0.117 89.5 / 38%);
+  --u-accent-on: oklch(0.21 0.035 268);
+
+  --u-radius: 0.875rem;
+
+  /* Spacing. Aurora runs slightly more generously than the previous
+     defaults; premium spacing is part of the look. [data-density]
+     overrides these. */
+  --u-gap: 1.25rem;
+  --u-pad: 1.5rem;
+  --u-pad-hero: 2rem;
+  --u-pad-muted: 1.125rem;
+  --u-stack: 1rem;
+
+  /* Elevation. New tokens, additive, nothing upstream refers to these
+     yet. The inset top highlight in each is the polished chrome edge:
+     doing it with an inset shadow rather than an ::after pseudo-element
+     means the glass hook below cannot collide with a component that
+     already uses ::after. */
+  --u-shadow-elevated:
+    0 1px 0 0 oklch(1 0 0 / 8%) inset,
+    0 0 0 1px oklch(0 0 0 / 22%),
+    0 12px 32px -12px oklch(0 0 0 / 55%);
+  --u-shadow-lifted:
+    0 1px 0 0 oklch(1 0 0 / 10%) inset,
+    0 0 0 1px oklch(0 0 0 / 26%),
+    0 24px 56px -16px oklch(0 0 0 / 65%);
+  --u-shadow-glow:
+    0 0 0 1px color-mix(in oklab, var(--u-accent) 38%, transparent),
+    0 10px 36px -10px color-mix(in oklab, var(--u-accent) 45%, transparent);
+}
+
+/* -- The glass material ----------------------------------------------- */
+/* The components paint surfaces with the Tailwind arbitrary value
+   bg-[var(--u-surface)], which compiles to a literal class inside
+   @layer utilities. These rules are unlayered, so they win the cascade
+   without needing !important, and they attach the frosted material to
+   every surface in the app at once.
+
+   Three properties only. No position change, no pseudo-elements, so
+   there is nothing here that can disturb an existing layout. */
+
+.bg-\[var\(--u-surface\)\] {
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: var(--u-shadow-elevated);
+}
+
+.bg-\[var\(--u-surface-sunken\)\] {
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+}
+
+/* -- Ambient backdrop -------------------------------------------------- */
+/* Frosted glass over a flat colour is invisible: the blur needs
+   something behind it to work on. Aurora's showcase floats three soft
+   drifting orbs behind everything, reproduced here as fixed background
+   layers so it needs no markup change.
+
+   Applied to the page-background class too, in case a layout wrapper
+   paints --u-page over the body. */
+
+body,
+.bg-\[var\(--u-page\)\] {
+  background-color: var(--u-page);
+  background-image:
+    radial-gradient(
+      42rem 42rem at 8% -6%,
+      color-mix(in oklab, var(--u-accent) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(38rem 38rem at 104% 38%, oklch(0.72 0.14 315 / 12%), transparent 70%),
+    radial-gradient(34rem 34rem at 28% 108%, oklch(0.78 0.13 165 / 10%), transparent 70%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* -- Accent ------------------------------------------------------------ */
+/* Gold is the Aurora signature and the default above. Teal, navy and
+   plum are kept so the existing ThemeSchema enum and persona configs
+   keep working untouched; each is re-cut in Aurora's idiom rather than
+   carried over from the light theme. Add "gold" to ThemeSchema when you
+   want a config to select it explicitly. */
+
+/* The -soft tints run at 22% with a nudge more chroma than their parent
+   accent. At 14% a tint over the dark navy ground composites to a muddy
+   neutral and stops reading as the accent colour at all; 22% keeps the
+   hue legible while staying well clear on contrast. */
+
+[data-accent="gold"] {
+  --u-accent: oklch(0.743 0.117 89.5);
+  --u-accent-deep: oklch(0.883 0.098 91.7);
+  --u-accent-soft: oklch(0.78 0.13 89.5 / 22%);
+  --u-accent-line: oklch(0.743 0.117 89.5 / 38%);
+  --u-accent-on: oklch(0.21 0.035 268);
+}
+
+[data-accent="teal"] {
+  --u-accent: oklch(0.78 0.13 168);
+  --u-accent-deep: oklch(0.9 0.08 170);
+  --u-accent-soft: oklch(0.8 0.14 168 / 22%);
+  --u-accent-line: oklch(0.78 0.13 168 / 38%);
+  --u-accent-on: oklch(0.2 0.04 185);
+}
+
+[data-accent="navy"] {
+  --u-accent: oklch(0.72 0.12 245);
+  --u-accent-deep: oklch(0.86 0.07 245);
+  --u-accent-soft: oklch(0.74 0.13 245 / 22%);
+  --u-accent-line: oklch(0.72 0.12 245 / 38%);
+  --u-accent-on: oklch(0.19 0.04 260);
+}
+
+[data-accent="plum"] {
+  --u-accent: oklch(0.73 0.13 315);
+  --u-accent-deep: oklch(0.89 0.07 315);
+  --u-accent-soft: oklch(0.75 0.14 315 / 22%);
+  --u-accent-line: oklch(0.73 0.13 315 / 38%);
+  --u-accent-on: oklch(0.21 0.04 300);
+}
+
+/* -- Density ----------------------------------------------------------- */
+/* Two layers, and the second is what makes the change actually visible.
+   The --u-* tokens cover components that already consume them.
+   --spacing is Tailwind 4's base unit: every p-*, gap-*, space-y-* and
+   m-* utility compiles to calc(var(--spacing) * n), so overriding it
+   here also moves the ~66 raw Tailwind spacing utilities that
+   REMAINING-WORK.md flags, without editing a component. Default 0.25rem.
+
+   Caveat: sizing utilities such as size-4 read --spacing too, so icons
+   scale with density. That reads as intentional at these ratios; drop
+   the --spacing line from each block if you would rather it did not. */
+
+[data-density="compact"] {
+  --u-gap: 0.875rem;
+  --u-pad: 1rem;
+  --u-pad-hero: 1.375rem;
+  --u-pad-muted: 0.75rem;
+  --u-stack: 0.625rem;
+  --spacing: 0.1875rem;
+}
+
+[data-density="comfortable"] {
+  --u-gap: 1.25rem;
+  --u-pad: 1.5rem;
+  --u-pad-hero: 2rem;
+  --u-pad-muted: 1.125rem;
+  --u-stack: 1rem;
+  --spacing: 0.25rem;
+}
+
+[data-density="spacious"] {
+  --u-gap: 1.875rem;
+  --u-pad: 2.25rem;
+  --u-pad-hero: 3rem;
+  --u-pad-muted: 1.625rem;
+  --u-stack: 1.5rem;
+  --spacing: 0.3125rem;
+}
+
+/* -- Type scale --------------------------------------------------------- */
+/* Subtler than it looks, and worth reading before simplifying.
+
+   REMAINING-WORK.md says the ramp rescales through --u-scale alone. It
+   cannot. A custom property resolves its var() references where it is
+   DECLARED, so --u-text-base declared on :root permanently bakes in
+   :root's --u-scale of 1. Overriding --u-scale further down the tree
+   never reaches it and the type silently stays put.
+
+   The fix is to redeclare the ramp on the same element that carries the
+   new --u-scale, so the calc() re-resolves there. The :root ramp is
+   untouched and stays the default outside any scope. Verified in a
+   browser: without the [data-scale] block, sm/md/lg all compute to the
+   same size. */
+
+[data-scale] {
+  --u-text-xs: calc(0.6875rem * var(--u-scale));
+  --u-text-sm: calc(0.8125rem * var(--u-scale));
+  --u-text-base: calc(0.9375rem * var(--u-scale));
+  --u-text-lg: calc(1.0625rem * var(--u-scale));
+  --u-text-xl: calc(1.375rem * var(--u-scale));
+  --u-text-2xl: calc(1.875rem * var(--u-scale));
+  --u-text-3xl: calc(2.5rem * var(--u-scale));
+}
+
+[data-scale="sm"] {
+  --u-scale: 0.925;
+}
+
+[data-scale="md"] {
+  --u-scale: 1;
+}
+
+[data-scale="lg"] {
+  --u-scale: 1.125;
+}
+
+/* -- Prominence (optional) ---------------------------------------------- */
+/* --u-pad-hero and --u-pad-muted already existed but nothing consumed
+   them. Remapping --u-pad per prominence wires them up through the
+   cascade, so a promoted slot's cards pad themselves correctly and
+   components stay unaware of prominence. The glow marks the hero.
+
+   Check against whatever ScreenRenderer already does for prominence
+   before merging; if it sets its own classes this may be redundant. */
+
+/* ui/Card.tsx already owns prominence completely: it varies padding via
+   --u-pad-hero / --u-pad / --u-pad-muted, swaps the surface token for
+   muted, resizes the title and drops the body to --u-ink-soft. None of
+   that is re-implemented here, and adding an opacity dim on top of its
+   muted treatment would double up. Only the hero shadow is replaced.
+
+   Note the selector is compound, not descended: Card puts
+   data-prominence and the surface class on the SAME element. */
+
+[data-prominence="hero"] {
+  box-shadow: var(--u-shadow-lifted), var(--u-shadow-glow);
+}
+
+/* Card's hero shadow is hardcoded rgba(15, 95, 107, 0.35), which is the
+   old teal. It is the one colour in the app that does not come from a
+   token, so it survived the "no hardcoded colours" audit by being rgba
+   rather than hex. Left as-is it paints a teal glow around a gold hero,
+   and would do the same to navy and plum once accent switching lands.
+   The rule above overrides it from unlayered CSS so nothing needs
+   editing, but the honest fix is one line in Card.tsx:
+
+     shadow-[0_2px_24px_-8px_rgba(15,95,107,0.35)]
+     ->  shadow-[var(--u-shadow-glow)]  */
+
+/* -- Dark-flip repairs --------------------------------------------------- */
+/* Nine places pair a literal `text-white` or `bg-white` with a token
+   background. That is correct while --u-ink and --u-positive are dark
+   colours, and breaks the moment they invert: the level switcher in
+   DemoBar renders white text on a near-white pill and becomes unreadable.
+   Found by rendering the real app, not by reading the source.
+
+   Repaired by targeting the exact class pairing rather than editing nine
+   components. Note these are compound selectors: both classes sit on the
+   same element.
+
+   --u-page is always the inverse of --u-ink in both modes, so the first
+   rule is mode-agnostic and needs no light-mode counterpart. */
+
+.bg-\[var\(--u-ink\)\].text-white {
+  color: var(--u-page);
+}
+
+.bg-\[var\(--u-positive\)\].text-white {
+  color: var(--u-positive-on);
+}
+
+.bg-\[var\(--u-caution\)\].text-white {
+  color: var(--u-caution-on);
+}
+
+/* The fired-signal dot in DemoBar is a bg-white child of a positive pill. */
+.bg-\[var\(--u-positive\)\] .bg-white {
+  background-color: var(--u-positive-on);
+}
+
+/* Studio's JSON editor keeps its own hardcoded syntax palette on a dark
+   ground. That was already dark and still reads correctly, so it is
+   deliberately left alone. */
+
+/* -- Light mode --------------------------------------------------------- */
+/* Aurora in daylight: translucent white glass over a cool off-white
+   ground. Put data-mode="light" on <html> or the ThemeScope wrapper to
+   flip the whole system, if a bank audience expects light. Everything
+   above still applies; only the values change. */
+
+[data-mode="light"] {
+  color-scheme: light;
+
+  --u-page: oklch(0.968 0.008 255);
+  --u-surface: oklch(1 0 0 / 62%);
+  --u-surface-sunken: oklch(0.25 0.04 268 / 4%);
+
+  --u-ink: oklch(0.25 0.04 268);
+  --u-ink-soft: oklch(0.5 0.03 262);
+  --u-ink-faint: oklch(0.515 0.028 262);
+
+  --u-line: oklch(0.25 0.04 268 / 12%);
+  --u-line-strong: oklch(0.25 0.04 268 / 22%);
+
+  /* Deepened so text-on-tint usages stay legible on light */
+  --u-positive: oklch(0.6 0.15 165);
+  --u-positive-soft: oklch(0.6 0.15 165 / 12%);
+  --u-caution: oklch(0.6 0.12 70);
+  --u-caution-soft: oklch(0.6 0.12 70 / 12%);
+
+  /* Status hues are mid-dark on light, so their on-colour flips back to
+     near-white, which is what the original literal text-white expected. */
+  --u-positive-on: oklch(0.99 0.005 165);
+  --u-caution-on: oklch(0.99 0.005 80);
+
+  --u-shadow-elevated:
+    0 1px 0 0 oklch(1 0 0 / 90%) inset,
+    0 1px 2px 0 oklch(0.3 0.05 268 / 5%),
+    0 12px 32px -12px oklch(0.35 0.06 268 / 16%);
+  --u-shadow-lifted:
+    0 1px 0 0 oklch(1 0 0 / 95%) inset,
+    0 2px 4px 0 oklch(0.3 0.05 268 / 6%),
+    0 24px 56px -16px oklch(0.35 0.06 268 / 22%);
+}
+
+/* Accent re-tuned for light: the accent deepens so it can carry white
+   text again, and -deep goes back to being darker than -accent. */
+[data-mode="light"][data-accent="gold"],
+[data-mode="light"] [data-accent="gold"],
+[data-mode="light"]:not([data-accent]) {
+  --u-accent: oklch(0.55 0.1 76);
+  --u-accent-deep: oklch(0.42 0.08 74);
+  --u-accent-soft: oklch(0.55 0.1 76 / 10%);
+  --u-accent-line: oklch(0.55 0.1 76 / 30%);
+  --u-accent-on: oklch(0.99 0.005 90);
+}
+
+[data-mode="light"][data-accent="teal"],
+[data-mode="light"] [data-accent="teal"] {
+  --u-accent: oklch(0.53 0.11 182);
+  --u-accent-deep: oklch(0.4 0.09 184);
+  --u-accent-soft: oklch(0.53 0.11 182 / 10%);
+  --u-accent-line: oklch(0.53 0.11 182 / 30%);
+  --u-accent-on: oklch(0.99 0.005 190);
+}
+
+[data-mode="light"][data-accent="navy"],
+[data-mode="light"] [data-accent="navy"] {
+  --u-accent: oklch(0.48 0.13 250);
+  --u-accent-deep: oklch(0.36 0.11 253);
+  --u-accent-soft: oklch(0.48 0.13 250 / 10%);
+  --u-accent-line: oklch(0.48 0.13 250 / 30%);
+  --u-accent-on: oklch(0.99 0.005 250);
+}
+
+[data-mode="light"][data-accent="plum"],
+[data-mode="light"] [data-accent="plum"] {
+  --u-accent: oklch(0.5 0.15 322);
+  --u-accent-deep: oklch(0.38 0.13 322);
+  --u-accent-soft: oklch(0.5 0.15 322 / 10%);
+  --u-accent-line: oklch(0.5 0.15 322 / 30%);
+  --u-accent-on: oklch(0.99 0.005 320);
+}
